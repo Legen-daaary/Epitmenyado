@@ -14,7 +14,6 @@ public class Epitmenyado {
         List<String> sorok = feltolt(forrasNeve);
         adosavok = getAdoSavok(sorok.remove(0));
         telkek = getTelkek(sorok);
-        sorok = null;
 
         System.out.print("2. feladat. ");
         System.out.println("A mintában " + telkek.size() + " telek szerepel.");
@@ -29,6 +28,58 @@ public class Epitmenyado {
         System.out.print("5. feladat");
         osszAdozas();
 
+        System.out.println("6. feladat");
+        felulvizsgalas();
+
+        System.out.println("7. feladat");
+        adoKiiras();
+    }
+
+    private static void adoKiiras() {
+        HashMap<Integer, Integer> adozasTulajdonosonkent = new HashMap<>();
+
+        for (Telek telek : telkek) {
+            if (!adozasTulajdonosonkent.containsKey(telek.getTulajdonosAdoszam())) {
+                adozasTulajdonosonkent.put(telek.getTulajdonosAdoszam(), 0);
+            }
+            int adoOsszeg = ado(telek.getAdosav(), telek.getAlapterulet());
+            adozasTulajdonosonkent.put(telek.getTulajdonosAdoszam(),
+                    adozasTulajdonosonkent.get(telek.getTulajdonosAdoszam()) + adoOsszeg);
+        }
+
+        List<String> adozoEsAdoja = new ArrayList<>();
+
+        for (int adozo : adozasTulajdonosonkent.keySet()) {
+            int osszesAdo = adozasTulajdonosonkent.get(adozo);
+
+            adozoEsAdoja.add(adozo + " " + osszesAdo);
+        }
+
+        try {
+            Files.write(Paths.get("fizetendo.txt"), adozoEsAdoja, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            System.out.println("Hiba: " + e.getMessage());
+        }
+    }
+
+    private static void felulvizsgalas() {
+        TreeSet<String> felulVizsgalandoUtcak = new TreeSet<>();
+        HashMap<String, Character> utcak = new HashMap<>();
+
+        for (Telek telek : telkek) {
+
+            if (utcak.containsKey(telek.getUtcaNeve())) {
+
+                if (telek.getAdosav() != utcak.get(telek.getUtcaNeve())) {
+                    felulVizsgalandoUtcak.add(telek.getUtcaNeve());
+                }
+
+            } else {
+                utcak.put(telek.getUtcaNeve(), telek.getAdosav());
+            }
+        }
+
+        felulVizsgalandoUtcak.forEach(System.out::println);
     }
 
     private static void osszAdozas() {
